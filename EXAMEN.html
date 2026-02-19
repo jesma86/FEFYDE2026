@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examen Diagnóstico - Evaluación e Intervención Motriz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.6s ease-in-out;
+            background-color: #f3f4f6;
+        }
+
+        /* Estilos de fondo */
+        .bg-portada {
+            background: linear-gradient(rgba(0,0,0,0.15), rgba(0,0,0,0.15)), url('portada.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .bg-quiz {
+            background: linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.6)), url('fondo.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .btn-option {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .option-correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534 !important;
+        }
+
+        .option-wrong {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+
+        .progress-bar-fill {
+            transition: width 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        #explanation-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        .scale-in {
+            animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* Banner superior */
+        #top-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: auto;
+            max-height: 120px;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 30;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        #top-banner img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .content-wrapper {
+            margin-top: 130px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding-bottom: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .content-wrapper {
+                margin-top: 100px;
+            }
+        }
+    </style>
+</head>
+<body id="main-body" class="bg-portada">
+
+    <!-- Banner Superior Institucional -->
+    <header id="top-banner">
+        <img src="banner.png" alt="Banner Institucional FEFYDE">
+    </header>
+
+    <div class="content-wrapper">
+        <!-- Pantalla de Inicio / Registro -->
+        <div id="start-screen" class="w-full max-w-xl mx-4 p-8 md:p-12 rounded-[2.5rem] glass-panel fade-in text-center">
+            <div class="mb-8">
+                <h1 class="text-3xl md:text-4xl font-black text-blue-900 leading-tight mb-3 uppercase tracking-tighter">Evaluación e Intervención Motriz</h1>
+                <p class="text-blue-600 font-bold tracking-widest text-sm uppercase">Examen Diagnóstico de Maestría</p>
+            </div>
+            
+            <div class="space-y-4 text-left mb-10">
+                <label for="name-input" class="block text-[10px] font-black text-gray-400 mb-1 uppercase tracking-widest ml-1">Nombre Completo del Alumno</label>
+                <input type="text" id="name-input" placeholder="Escribe aquí tu nombre..." 
+                    class="w-full px-6 py-4 rounded-2xl border-2 border-blue-50 focus:border-blue-600 focus:outline-none transition-all shadow-sm text-lg font-bold text-blue-900 bg-white">
+            </div>
+
+            <button onclick="initQuiz()" class="w-full py-5 bg-blue-900 text-white font-black rounded-2xl hover:bg-blue-800 shadow-xl transition-all active:scale-95 uppercase tracking-widest text-sm">
+                Ingresar al Examen
+            </button>
+            <p class="mt-8 text-[9px] text-gray-400 font-bold uppercase tracking-widest">Universidad Autónoma de Sinaloa • FEFYDE</p>
+        </div>
+
+        <!-- Pantalla del Quiz -->
+        <div id="quiz-screen" class="hidden w-full max-w-4xl mx-4 p-8 md:p-12 rounded-[2.5rem] glass-panel fade-in">
+            <div class="flex justify-between items-center mb-8 pb-4 border-b border-gray-100">
+                <div>
+                    <h2 id="q-counter" class="text-blue-900 font-black text-2xl"></h2>
+                    <div class="flex items-center mt-1">
+                        <div class="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                        <p id="current-user" class="text-[10px] font-black text-gray-400 uppercase tracking-widest"></p>
+                    </div>
+                </div>
+                <div class="bg-blue-900 text-white px-5 py-3 rounded-2xl shadow-lg flex flex-col items-center">
+                    <span class="text-[8px] font-black uppercase opacity-70 mb-1 text-center">Aciertos</span>
+                    <span id="score-live" class="font-black text-xl leading-none">0</span>
+                </div>
+            </div>
+
+            <div class="w-full bg-gray-100 h-2.5 rounded-full mb-12 overflow-hidden shadow-inner">
+                <div id="progress-bar" class="progress-bar-fill bg-blue-600 h-full w-0"></div>
+            </div>
+
+            <div id="question-area">
+                <h3 id="question-text" class="text-2xl md:text-3xl font-bold text-gray-800 mb-10 leading-tight"></h3>
+                <div id="options-grid" class="grid grid-cols-1 gap-4 mb-10"></div>
+                
+                <button id="next-button" onclick="handleNext()" class="hidden w-full py-5 bg-gray-900 text-white font-black rounded-2xl hover:bg-black transition-all flex items-center justify-center shadow-2xl uppercase tracking-widest">
+                    Continuar
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Pantalla Final -->
+        <div id="result-screen" class="hidden w-full max-w-lg mx-4 p-12 rounded-[3rem] glass-panel fade-in text-center">
+            <div id="result-circle" class="w-48 h-48 rounded-full border-[14px] flex flex-col items-center justify-center mx-auto mb-10 shadow-3xl bg-white">
+                <span id="final-points" class="text-6xl font-black"></span>
+                <span class="text-xs font-black text-gray-400 uppercase tracking-widest text-center">Aciertos</span>
+            </div>
+            
+            <h2 id="final-user-name" class="text-3xl font-black text-gray-800 mb-4 leading-tight"></h2>
+            
+            <div class="p-8 bg-white/60 rounded-[2rem] border-2 border-white mb-6 shadow-inner">
+                <p id="final-msg" class="text-xl text-gray-700 font-bold leading-relaxed italic"></p>
+            </div>
+
+            <!-- Botón de WhatsApp -->
+            <button onclick="sendWhatsApp()" class="w-full py-4 bg-green-600 text-white font-black rounded-2xl hover:bg-green-700 shadow-xl transition-all active:scale-95 uppercase tracking-widest text-sm mb-4 flex items-center justify-center">
+                <svg class="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                </svg>
+                Enviar resultado al Maestro
+            </button>
+
+            <button onclick="location.reload()" class="w-full py-4 bg-gray-300 text-gray-700 font-bold rounded-2xl hover:bg-gray-400 transition-all uppercase tracking-widest text-xs">
+                Reiniciar Examen
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal de Feedback -->
+    <div id="explanation-modal">
+        <div class="glass-panel max-w-md w-full p-8 rounded-[2.5rem] text-center shadow-3xl scale-in">
+            <div id="modal-status-icon" class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-md border-4"></div>
+            <h4 id="modal-title" class="text-3xl font-black mb-1 uppercase italic tracking-tighter text-center"></h4>
+            <p id="modal-header-text" class="text-[10px] text-gray-400 font-black uppercase mb-4 tracking-widest text-center"></p>
+            
+            <div class="bg-white/50 border border-gray-100 p-5 rounded-2xl mb-6">
+                <p id="modal-correct-ans" class="text-blue-900 font-bold text-lg leading-tight text-center"></p>
+            </div>
+            
+            <div id="modal-info-box" class="p-6 rounded-2xl text-left mb-8 border-l-4">
+                <p class="text-[9px] font-black uppercase mb-2 opacity-60 tracking-widest">Refuerzo Académico:</p>
+                <p id="modal-explanation" class="text-sm font-medium leading-relaxed text-gray-700"></p>
+            </div>
+            
+            <button onclick="closeFeedback()" class="w-full py-4 bg-blue-900 text-white font-black rounded-2xl hover:bg-blue-800 transition-all shadow-xl uppercase text-xs tracking-widest">
+                Siguiente
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                q: "¿Qué se entiende por 'Motricidad' en el ámbito de la educación física?",
+                options: ["La capacidad del ser humano para producir movimiento a través del sistema musculoesquelético.", "El simple desplazamiento de un objeto de un punto a otro.", "La capacidad de pensar en moverse sin realizar la acción.", "La acumulación de energía en los músculos en reposo."],
+                correct: 0,
+                info: "La motricidad implica la integración de funciones biológicas, psíquicas y sociales para generar acciones físicas con intención."
+            },
+            {
+                q: "¿Cuál de estas es una Habilidad Motriz Básica de tipo 'Locomotriz'?",
+                options: ["Empujar una pared.", "Correr y saltar.", "Lanzar una pelota.", "Mantenerse en un pie."],
+                correct: 1,
+                info: "Las habilidades locomotrices permiten el desplazamiento total del cuerpo por el espacio físico (caminar, correr, trepar)."
+            },
+            {
+                q: "¿Qué es el 'Esquema Corporal'?",
+                options: ["La silueta que dibujamos en un papel.", "La representación mental que cada persona tiene de su propio cuerpo.", "El nombre de todos los huesos del esqueleto.", "La vestimenta que usamos para hacer deporte."],
+                correct: 1,
+                info: "Es la toma de conciencia de nuestro cuerpo, sus límites y sus posibilidades de movimiento en relación al entorno."
+            },
+            {
+                q: "¿A qué se refiere el término 'Lateralidad'?",
+                options: ["A la capacidad de moverse solo hacia los lados.", "A la preferencia de un lado del cuerpo sobre el otro (mano, pie, ojo).", "A la altura máxima que alcanza una persona.", "A la velocidad con la que alguien gira sobre su eje."],
+                correct: 1,
+                info: "La lateralidad es el predominio funcional de un lado del cuerpo, determinado por la supremacía de un hemisferio cerebral."
+            },
+            {
+                q: "¿Cuál es un ejemplo de Habilidad Motriz de 'Manipulación'?",
+                options: ["Trepar un árbol.", "Hacer un giro en el aire.", "Atrapar un balón.", "Deslizarse por el suelo."],
+                correct: 2,
+                info: "Son aquellas donde el cuerpo interactúa directamente con objetos externos, ya sea proyectándolos o recibiéndolos."
+            },
+            {
+                q: "¿Qué es el equilibrio dinámico?",
+                options: ["Mantenerse quieto sobre una base estable.", "Mantener la postura deseada mientras el cuerpo está en movimiento.", "Perder el control del cuerpo al correr.", "Dormir en una posición correcta."],
+                correct: 1,
+                info: "Es la capacidad de mantener la estabilidad postural mientras se realizan desplazamientos o acciones motrices dinámicas."
+            },
+            {
+                q: "¿Qué capacidad física básica nos permite vencer una resistencia u oposición?",
+                options: ["Velocidad.", "Fuerza.", "Resistencia.", "Flexibilidad."],
+                correct: 1,
+                info: "La fuerza es la capacidad neuromuscular de superar una carga externa mediante el esfuerzo muscular voluntario."
+            },
+            {
+                q: "¿Qué es la coordinación visomotriz (óculo-manual)?",
+                options: ["La capacidad de ver de lejos sin lentes.", "La armonía entre la vista y los movimientos de las manos.", "El movimiento coordinado de ambas piernas al caminar.", "La relación entre el oído y el equilibrio."],
+                correct: 1,
+                info: "Es fundamental para tareas precisas; el ojo guía la acción y la mano ejecuta la respuesta motora de forma sincronizada."
+            },
+            {
+                q: "¿A qué capacidad física pertenece la cualidad de realizar un movimiento en el menor tiempo posible?",
+                options: ["Flexibilidad.", "Resistencia.", "Velocidad.", "Agilidad."],
+                correct: 2,
+                info: "La velocidad es la capacidad de responder o desplazarse en el tiempo mínimo ante un estímulo determinado."
+            },
+            {
+                q: "¿Qué es la flexibilidad?",
+                options: ["La capacidad de correr durante mucho tiempo.", "La capacidad de mover las articulaciones con gran amplitud.", "La dureza de los huesos ante los golpes.", "La capacidad de levantar objetos muy pesados."],
+                correct: 1,
+                info: "Depende de la movilidad articular y la elasticidad de los tejidos musculares para lograr rangos de movimiento óptimos."
+            },
+            {
+                q: "¿Qué implica la 'Motricidad Fina'?",
+                options: ["Movimientos que involucran grandes grupos musculares.", "Movimientos precisos que requieren control de músculos pequeños (dedos, manos).", "La capacidad de saltar muy alto.", "El estudio de la nutrición en deportistas."],
+                correct: 1,
+                info: "Se asocia con la destreza y control fino de movimientos que requieren una alta precisión y coordinación oculomanual."
+            },
+            {
+                q: "¿Qué es la resistencia física?",
+                options: ["La capacidad de aguantar un esfuerzo durante un tiempo prolongado.", "La capacidad de no sentir dolor al caerse.", "La velocidad de reacción ante un silbato.", "La fuerza necesaria para empujar un coche."],
+                correct: 0,
+                info: "Es la capacidad del organismo para soportar la fatiga y mantener un esfuerzo físico durante un tiempo determinado."
+            },
+            {
+                q: "¿Qué es la percepción espacial?",
+                options: ["Saber qué hora es en todo momento.", "Conocer la ubicación del cuerpo respecto a los objetos y personas en el entorno.", "La capacidad de saltar al espacio exterior.", "La capacidad de ver en la oscuridad."],
+                correct: 1,
+                info: "Permite calcular distancias, orientarse y estructurar el entorno en relación con el propio cuerpo."
+            },
+            {
+                q: "Un ejemplo de habilidad motriz de 'Estabilidad' o 'No Locomotriz' es:",
+                options: ["Girar sobre el propio eje.", "Correr a toda velocidad.", "Lanzar una piedra al río.", "Caminar por una línea recta."],
+                correct: 0,
+                info: "Son acciones donde se maneja el centro de gravedad sin desplazarse de la base de sustentación (girar, balancear, inclinarse)."
+            },
+            {
+                q: "¿Por qué es importante el juego motor en el desarrollo?",
+                options: ["Solo sirve para que los niños se cansen.", "Porque integra el movimiento, la socialización y el aprendizaje cognitivo.", "Porque evita que los niños aprendan a leer.", "Porque es obligatorio por ley nacional."],
+                correct: 1,
+                info: "El juego es el medio natural por el cual el ser humano explora, se relaciona y desarrolla sus funciones motrices y cognitivas."
+            }
+        ];
+
+        let currentIdx = 0;
+        let score = 0;
+        let userName = "";
+        let answered = false;
+
+        function initQuiz() {
+            const nameField = document.getElementById('name-input');
+            if (!nameField.value.trim()) {
+                nameField.classList.add('border-red-400');
+                return;
+            }
+            userName = nameField.value.trim();
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            document.getElementById('main-body').className = 'bg-quiz';
+            document.getElementById('current-user').innerText = userName;
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            document.getElementById('next-button').classList.add('hidden');
+            const data = quizData[currentIdx];
+            document.getElementById('q-counter').innerText = `Reactivo ${currentIdx + 1} / ${quizData.length}`;
+            document.getElementById('question-text').innerText = data.q;
+            
+            const grid = document.getElementById('options-grid');
+            grid.innerHTML = '';
+            
+            data.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = "btn-option w-full text-left p-6 rounded-3xl border-2 border-white bg-white/60 hover:bg-white hover:border-blue-400 transition-all font-bold text-gray-700 shadow-sm flex items-center group";
+                btn.innerHTML = `
+                    <span class="w-12 h-12 rounded-2xl bg-blue-900 text-white flex items-center justify-center mr-6 text-lg font-black group-hover:scale-110 transition-transform flex-shrink-0">
+                        ${String.fromCharCode(65 + i)}
+                    </span>
+                    <span class="text-lg md:text-xl">${opt}</span>
+                `;
+                btn.onclick = () => validateAnswer(i, btn);
+                grid.appendChild(btn);
+            });
+
+            const progress = ((currentIdx) / quizData.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        function validateAnswer(idx, btn) {
+            if (answered) return;
+            answered = true;
+
+            const correctIdx = quizData[currentIdx].correct;
+            const isCorrect = (idx === correctIdx);
+            
+            const allBtns = document.querySelectorAll('.btn-option');
+            allBtns.forEach((b, i) => {
+                b.style.cursor = 'default';
+                if (i === correctIdx) b.classList.add('option-correct');
+            });
+
+            if (isCorrect) {
+                score++;
+                document.getElementById('score-live').innerText = score;
+                triggerFeedback(true);
+            } else {
+                btn.classList.add('option-wrong');
+                triggerFeedback(false);
+            }
+
+            document.getElementById('next-button').classList.remove('hidden');
+        }
+
+        function triggerFeedback(success) {
+            const title = document.getElementById('modal-title');
+            const header = document.getElementById('modal-header-text');
+            const box = document.getElementById('modal-info-box');
+            const iconContainer = document.getElementById('modal-status-icon');
+            
+            if (success) {
+                title.innerText = "¡Acierto!";
+                title.className = "text-3xl font-black mb-1 text-green-600 uppercase italic tracking-tighter text-center";
+                header.innerText = "Respuesta Correcta";
+                box.className = "p-6 rounded-2xl text-left mb-8 bg-green-50 border-l-4 border-green-400 text-green-900 shadow-inner";
+                iconContainer.className = "w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-green-200 shadow-sm";
+                iconContainer.innerHTML = '<svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>';
+            } else {
+                title.innerText = "¡Atención!";
+                title.className = "text-3xl font-black mb-1 text-red-600 uppercase italic tracking-tighter text-center";
+                header.innerText = "La respuesta correcta era:";
+                box.className = "p-6 rounded-2xl text-left mb-8 bg-blue-50 border-l-4 border-blue-400 text-blue-900 shadow-inner";
+                iconContainer.className = "w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-red-200 shadow-sm";
+                iconContainer.innerHTML = '<svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+            }
+
+            document.getElementById('modal-correct-ans').innerText = quizData[currentIdx].options[quizData[currentIdx].correct];
+            document.getElementById('modal-explanation').innerText = quizData[currentIdx].info;
+            document.getElementById('explanation-modal').style.display = 'flex';
+        }
+
+        function closeFeedback() {
+            document.getElementById('explanation-modal').style.display = 'none';
+        }
+
+        function handleNext() {
+            currentIdx++;
+            if (currentIdx < quizData.length) {
+                renderQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            document.getElementById('progress-bar').style.width = '100%';
+            
+            document.getElementById('final-points').innerText = `${score}`;
+            document.getElementById('final-user-name').innerText = userName;
+            
+            const msg = document.getElementById('final-msg');
+            const circle = document.getElementById('result-circle');
+            
+            if (score >= 8) {
+                msg.innerText = "Felicidades lo hiciste bien, solo no presumas aun te falta mucho por conocer";
+                circle.style.borderColor = "#22c55e";
+                circle.style.color = "#22c55e";
+            } else {
+                msg.innerText = "Estas un poco empolvad@ pero aquí nos pondremos al corriente";
+                circle.style.borderColor = "#f97316";
+                circle.style.color = "#f97316";
+            }
+        }
+
+        function sendWhatsApp() {
+            const phoneNumber = "526671191538"; // Código de país 52 (México) + número
+            const totalQuestions = quizData.length;
+            const message = encodeURIComponent(
+                `*REPORTE DE EXAMEN DIAGNÓSTICO*\n\n` +
+                `*Materia:* Evaluación e Intervención Motriz\n` +
+                `*Estudiante:* ${userName}\n` +
+                `*Resultado:* ${score} de ${totalQuestions} aciertos.\n\n` +
+                `_Enviado desde la plataforma FEFYDE-UAS_`
+            );
+            
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+            window.open(whatsappUrl, '_blank');
+        }
+    </script>
+</body>
+</html>
